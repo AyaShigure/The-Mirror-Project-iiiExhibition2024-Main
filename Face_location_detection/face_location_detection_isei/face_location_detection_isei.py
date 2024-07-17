@@ -1,22 +1,10 @@
-# 2024-7-16
-# Face dection from webcamera stream
-# This script is for calculating the proper angel for the camera to point to.
-
-
-# Notes/Todo 
-
-# 1. Get the biggest face from the video stream, or change the therothold of the face classifier
-# 2. get some smooth filter in there: 
-#       Filter logic: the detected face should have a speed, and it is not possible to change position too drastically.
-# 3. Estimate the distance from the camera the the viewer, using the size of bounding box
-# 4. Get the size of the captured image, display the central horizontal and vertical of the captured image
-# 5. Calculate the distance, then use the distances from the camera and distanc to the center to calculate the pitch and yaw angle.
-# 5.5 Calculate/Estimate the angles & translation (homogeneous transformations?) from the camera frome
-
-# 6. Need to get some data filtering to prevent uncontrollable shaking on the servo.
-# 7. Kalman filter?
-
 import cv2
+from pygame import mixer  # Load the popular external library
+import random
+from glob import glob
+
+mp3_src_list = glob('./src/*')
+len_mp3_src_list = len(mp3_src_list)
 
 face_classifier = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
@@ -59,6 +47,85 @@ def add_central_lines(vid):
     vid = cv2.line(vid, vertical_start_coord, vertical_end_coord, color, thickness)
 
     return vid
+
+
+def emotionalDamage(vid, faces):
+    # face pos
+    x,y,w,h = faces[0]
+    x_face = x + int(w/2)
+    y_face = y + int(h/2)
+
+    # box_loc = [random.randint(50,1200-50),random.randint(50,700-50)]
+    box_loc = [150,150]
+    box_size = 100
+    cv2.rectangle(vid, (box_loc[0], box_loc[1]), (box_loc[0] + box_size, box_loc[1] + box_size), (0, 100, 100), 4)
+
+    if x_face > box_loc[0] and x_face < box_loc[0] + box_size and y_face > box_loc[1] and y_face < box_loc[1] + box_size:
+        print('IN RANGE IN RANGE IN RANGE IN RANGE IN RANGE IN RANGE')
+        mixer.init()
+        mixer.music.load(mp3_src_list[random.randint(0,len_mp3_src_list-1)])
+        mixer.music.play()
+    return vid
+
+
+def huh_cat(vid, faces):
+
+    # face pos
+    x,y,w,h = faces[0]
+    x_face = x + int(w/2)
+    y_face = y + int(h/2)
+
+    # box_loc = [random.randint(50,1200-50),random.randint(50,700-50)]
+    box_loc = [150,500]
+    box_size = 100
+    cv2.rectangle(vid, (box_loc[0], box_loc[1]), (box_loc[0] + box_size, box_loc[1] + box_size), (100, 100, 100), 4)
+
+    if x_face > box_loc[0] and x_face < box_loc[0] + box_size and y_face > box_loc[1] and y_face < box_loc[1] + box_size:
+        print('IN RANGE IN RANGE IN RANGE IN RANGE IN RANGE IN RANGE')
+        mixer.init()
+        mixer.music.load(mp3_src_list[random.randint(0,len_mp3_src_list-1)])
+        mixer.music.play()
+    return vid
+
+def chipichipichapachapa(vid, faces):
+
+    # face pos
+    x,y,w,h = faces[0]
+    x_face = x + int(w/2)
+    y_face = y + int(h/2)
+
+    # box_loc = [random.randint(50,1200-50),random.randint(50,700-50)]
+    box_loc = [1000,50]
+    box_size = 100
+    cv2.rectangle(vid, (box_loc[0], box_loc[1]), (box_loc[0] + box_size, box_loc[1] + box_size), (100, 0, 200), 4)
+
+    if x_face > box_loc[0] and x_face < box_loc[0] + box_size and y_face > box_loc[1] and y_face < box_loc[1] + box_size:
+        print('IN RANGE IN RANGE IN RANGE IN RANGE IN RANGE IN RANGE')
+        mixer.init()
+        mixer.music.load(mp3_src_list[random.randint(0,len_mp3_src_list-1)])
+        mixer.music.play()
+    return vid
+
+
+def happihappihappi(vid, faces ):
+
+    # face pos
+    x,y,w,h = faces[0]
+    x_face = x + int(w/2)
+    y_face = y + int(h/2)
+
+    # box_loc = [random.randint(50,1200-50),random.randint(50,700-50)]
+    box_loc = [1000,500]
+    box_size = 100
+    cv2.rectangle(vid, (box_loc[0], box_loc[1]), (box_loc[0] + box_size, box_loc[1] + box_size), (100, 50, 100), 4)
+
+    if x_face > box_loc[0] and x_face < box_loc[0] + box_size and y_face > box_loc[1] and y_face < box_loc[1] + box_size:
+        print('IN RANGE IN RANGE IN RANGE IN RANGE IN RANGE IN RANGE')
+        mixer.init()
+        mixer.music.load(mp3_src_list[random.randint(0,len_mp3_src_list-1)])
+        mixer.music.play()
+    return vid
+
 
 def add_arrawed_line_to_face_coord(vid, faces):
     # Center of the frame
@@ -123,6 +190,15 @@ while True:
         show_this_frame = cv2.putText(show_this_frame, f'x = {faces[0][0]}, y = {faces[0][1]}, w = {faces[0][2]}, h = {faces[0][3]}', org, font,  
                    fontScale, color, thickness, cv2.LINE_AA)
         show_this_frame = add_arrawed_line_to_face_coord(show_this_frame, faces)
+
+        # play sounds
+        try:
+            show_this_frame = emotionalDamage(show_this_frame, faces)
+            show_this_frame = huh_cat(show_this_frame, faces)
+            show_this_frame = happihappihappi(show_this_frame, faces)
+            show_this_frame = chipichipichapachapa(show_this_frame, faces)
+        except:
+            pass
 
     except:
         show_this_frame = cv2.putText(show_this_frame, 'No face is detected!', org, font,  
