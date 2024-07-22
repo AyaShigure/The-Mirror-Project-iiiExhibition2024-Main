@@ -16,6 +16,11 @@
 # 6. Need to get some data filtering to prevent uncontrollable shaking on the servo.
 # 7. Kalman filter?
 
+
+# Note 2024-7-22
+
+# 1. Add logic: If face box is larger than xxx, active tracking and hardware serial communication and control.
+
 import cv2
 
 face_classifier = cv2.CascadeClassifier(
