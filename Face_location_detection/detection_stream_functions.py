@@ -18,10 +18,10 @@
 
 
 # Note 2024-7-22
-
 # 1. Add logic: If face box is larger than xxx, active tracking and hardware serial communication and control.
 
 import cv2
+
 
 face_classifier = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
@@ -33,14 +33,38 @@ video_capture = cv2.VideoCapture(0)
 _, video_frame = video_capture.read()
 video_size_x = video_frame.shape[1]
 video_size_y = video_frame.shape[0]
-print(f'size_x = {video_size_x}, size_y = {video_size_y}')
+print(f'video_size_x = {video_size_x}, video_size_y = {video_size_y}')
 
-def detect_bounding_box(vid):
+
+def detect_bounding_box(vid): 
+    '''
+        Modified on 2024/8/15:
+            1.  Added logic to show only the biggest face
+    '''
     gray_image = cv2.cvtColor(vid, cv2.COLOR_BGR2GRAY)
     faces = face_classifier.detectMultiScale(gray_image, 1.1, 5, minSize=(80, 80))
-    for (x, y, w, h) in faces:
-        cv2.rectangle(vid, (x, y), (x + w, y + h), (0, 255, 0), 4)
-    return faces
+    print(f'len_faces = {len(faces)}')
+
+    try:
+        if len(faces) == 1:
+            for (x, y, w, h) in faces:
+                cv2.rectangle(vid, (x, y), (x + w, y + h), (0, 255, 0), 4)
+        else: # Only show the biggest one 
+            detected_face_size = []
+            for (x, y, w, h) in faces:
+                # Notice that 'w' and 'h' are always the same
+                detected_face_size.append(w)
+            biggest_face_size = max(detected_face_size)
+            biggest_face_index = detected_face_size.index(biggest_face_size)
+
+            cv2.rectangle(vid, 
+                        (faces[biggest_face_index][0], faces[biggest_face_index][1]), 
+                        (faces[biggest_face_index][0] + biggest_face_size, faces[biggest_face_index][1] + biggest_face_size), 
+                        (0, 255, 0), 
+                        4)
+        return faces[biggest_face_index]
+    except:
+        return None
 
 def add_central_lines(vid):
     x_left = 0
@@ -93,52 +117,3 @@ def add_arrawed_line_to_face_coord(vid, faces):
                                         color, thickness) 
 
     return vid
-
-while True:
-
-    result, video_frame = video_capture.read()  # read frames from the video
-    if result is False:
-        break  # terminate the loop if the frame is not read successfully
-
-    faces = detect_bounding_box(
-        video_frame
-    )  # apply the function we created to the video frame
-
-    face_coordinate_x = 0
-    face_coordinate_y = 0
-    # show_this_frame = cv2.flip(video_frame,1)
-    show_this_frame = video_frame
-    show_this_frame = add_central_lines(show_this_frame)
-
-    # font 
-    font = cv2.FONT_HERSHEY_SIMPLEX 
-    
-    # org 
-    org = (50, 50) 
-    
-    # fontScale 
-    fontScale = 1
-    
-    # Blue color in BGR 
-    color = (255, 0, 0) 
-    print(faces)
-    # Line thickness of 2 px 
-    thickness = 2
-    try:
-        show_this_frame = cv2.putText(show_this_frame, f'x = {faces[0][0]}, y = {faces[0][1]}, w = {faces[0][2]}, h = {faces[0][3]}', org, font,  
-                   fontScale, color, thickness, cv2.LINE_AA)
-        show_this_frame = add_arrawed_line_to_face_coord(show_this_frame, faces)
-
-    except:
-        show_this_frame = cv2.putText(show_this_frame, 'No face is detected!', org, font,  
-                   fontScale, color, thickness, cv2.LINE_AA)
-    
-    cv2.imshow(
-        "My Face Detection Project", show_this_frame
-    )  # display the processed frame in a window named "My Face Detection Project"
-
-    if cv2.waitKey(1) & 0xFF == ord("q"):
-        break
-
-video_capture.release()
-cv2.destroyAllWindows()
