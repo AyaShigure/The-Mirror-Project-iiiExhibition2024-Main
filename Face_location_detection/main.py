@@ -8,7 +8,7 @@ if __name__ == "__main__":
         result, video_frame = video_capture.read()  # read frames from the video
         if result is False:
             break  # terminate the loop if the frame is not read successfully
-
+        video_frame = cv2.flip(video_frame, 1)
         faces = detect_bounding_box(
             video_frame
         ) 
@@ -37,10 +37,10 @@ if __name__ == "__main__":
         # Line thickness of 2 px 
         thickness = 2
         try:
-            show_this_frame = cv2.putText(show_this_frame, f'x = {faces[0][0]}, y = {faces[0][1]}, w = {faces[0][2]}, h = {faces[0][3]}', org, font,  
+            show_this_frame = cv2.putText(show_this_frame, f'x = {faces[0]}, y = {faces[1]}, w = {faces[2]}, h = {faces[3]}', org, font,  
                     fontScale, color, thickness, cv2.LINE_AA)
             show_this_frame = add_arrawed_line_to_face_coord(show_this_frame, faces)
-
+            estimate_distance(faces)
         except:
             show_this_frame = cv2.putText(show_this_frame, 'No face is detected!', org, font,  
                     fontScale, color, thickness, cv2.LINE_AA)

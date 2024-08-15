@@ -45,26 +45,27 @@ def detect_bounding_box(vid):
     faces = face_classifier.detectMultiScale(gray_image, 1.1, 5, minSize=(80, 80))
     print(f'len_faces = {len(faces)}')
 
-    try:
-        if len(faces) == 1:
-            for (x, y, w, h) in faces:
-                cv2.rectangle(vid, (x, y), (x + w, y + h), (0, 255, 0), 4)
-        else: # Only show the biggest one 
-            detected_face_size = []
-            for (x, y, w, h) in faces:
-                # Notice that 'w' and 'h' are always the same
-                detected_face_size.append(w)
-            biggest_face_size = max(detected_face_size)
-            biggest_face_index = detected_face_size.index(biggest_face_size)
+    # try:
+    if len(faces) == 1:
+        for (x, y, w, h) in faces:
+            cv2.rectangle(vid, (x, y), (x + w, y + h), (0, 255, 0), 4)
+        return faces[0]
+    elif len(faces) > 1: # Only show the biggest one 
+        detected_face_size = []
+        for (x, y, w, h) in faces:
+            # Notice that 'w' and 'h' are always the same
+            detected_face_size.append(w)
+        biggest_face_size = max(detected_face_size)
+        biggest_face_index = detected_face_size.index(biggest_face_size)
 
-            cv2.rectangle(vid, 
-                        (faces[biggest_face_index][0], faces[biggest_face_index][1]), 
-                        (faces[biggest_face_index][0] + biggest_face_size, faces[biggest_face_index][1] + biggest_face_size), 
-                        (0, 255, 0), 
-                        4)
+        cv2.rectangle(vid, 
+                    (faces[biggest_face_index][0], faces[biggest_face_index][1]), 
+                    (faces[biggest_face_index][0] + biggest_face_size, faces[biggest_face_index][1] + biggest_face_size), 
+                    (0, 255, 0), 
+                    4)
         return faces[biggest_face_index]
-    except:
-        return None
+    # except:
+    #     return 
 
 def add_central_lines(vid):
     x_left = 0
@@ -94,7 +95,7 @@ def add_arrawed_line_to_face_coord(vid, faces):
     x_central = int(video_size_x/2)
     y_central = int(video_size_y/2)
 
-    x,y,w,h = faces[0]
+    x,y,w,h = faces
     x_face = x + int(w/2)
     y_face = y + int(h/2)
 
@@ -117,3 +118,24 @@ def add_arrawed_line_to_face_coord(vid, faces):
                                         color, thickness) 
 
     return vid
+
+
+def estimate_distance(face):
+    '''
+        average_width_of_a_head = 150 # mm
+        width_of_a_head_in_pixel = w
+        mm_per_pixel = average_width_of_a_head / width_of_a_head_in_pixel
+
+
+        mat = np.matrix([[100,1],[42,1]])
+        np.linalg.inv(mat) * np.matrix([[140], [370]])
+    '''
+    x,y,w,h = face
+
+    # y = ax+b, y: pixels, x:dist
+    a = -3.96551724
+    b = 536.55172414
+
+    x = round((y - b)/ a, 2)
+
+    print(f'Estimated distance is {x}')
