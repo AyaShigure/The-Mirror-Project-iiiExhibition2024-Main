@@ -4,8 +4,11 @@ import os
 
 class arduino_control():
     def __init__(self, serial_port):
-        self.arduino = serial.Serial(port=serial_port, baudrate=115200, timeout=.1) 
-
+        try:
+            self.arduino = serial.Serial(port=serial_port, baudrate=115200, timeout=.1) 
+        except:
+            print('Invalid port, exiting..')
+            os.exit(0)
     def check_connection(self):
         pass
 
