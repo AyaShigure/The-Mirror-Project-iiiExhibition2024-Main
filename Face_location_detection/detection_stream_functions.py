@@ -21,7 +21,7 @@
 # 1. Add logic: If face box is larger than xxx, active tracking and hardware serial communication and control.
 
 import cv2
-
+import numpy as np
 
 face_classifier = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
@@ -122,20 +122,106 @@ def add_arrawed_line_to_face_coord(vid, faces):
 
 def estimate_distance(face):
     '''
-        average_width_of_a_head = 150 # mm
-        width_of_a_head_in_pixel = w
-        mm_per_pixel = average_width_of_a_head / width_of_a_head_in_pixel
+        !!!!! This block needs to be revised if the camera is changed.
+    
+        This is modeled with a linear equation d = ap+b, where p is pixels, d is dist, a and b are constants.
 
+        Measured data: 100cm -> 140 pixels
+                       42cm  -> 370 pixels
+        
+        Solve the inversion of constant matrix to solve a and b
+        mat = np.matrix([[140,1],[370,1]])
+        np.linalg.inv(mat) * np.matrix([[100], [42]])
 
-        mat = np.matrix([[100,1],[42,1]])
-        np.linalg.inv(mat) * np.matrix([[140], [370]])
+        a = -0.25217391
+        b = 135.30434783
     '''
     x,y,w,h = face
 
-    # y = ax+b, y: pixels, x:dist
-    a = -3.96551724
-    b = 536.55172414
+    # d = ap+b, p:pixels, d:dist
+    a = -0.25217391
+    b = 135.30434783
+    est_dist = round(a * w + b, 2)
+    pixels_per_centimeter = w / 15 # This constant is used to calculate the angles for the camera to rotate
+    print(f'Estimated distance is {est_dist} cm')
+    return est_dist, pixels_per_centimeter
 
-    x = round((y - b)/ a, 2)
+def estimate_angle(face, est_dist, pixels_per_centimeter):
+    x_left = 0
+    x_right = video_size_x
+    x_central = int(video_size_x/2)
+    y_low = 0
+    y_high = video_size_y
+    y_central = int(video_size_y/2)
 
-    print(f'Estimated distance is {x}')
+    x,y,w,h = face
+    x_face = x + int(w/2)
+    y_face = y + int(h/2)
+
+    horizontal_distance_off_center = round((x_face - x_central) / pixels_per_centimeter, 2) # [pixel] / [pixel/cm] = [cm]
+    vertical_distance_off_center = round((y_central - y_face) / pixels_per_centimeter, 2) # [pixel] / [pixel/cm] = [cm]
+    print(f'Horizontal off center: {horizontal_distance_off_center}cm')
+    print(f'Vertical off center: {vertical_distance_off_center}cm')
+
+
+    theta_z = round(np.arctan2(horizontal_distance_off_center, est_dist),4)
+    theta_y = round(np.arctan2(vertical_distance_off_center, est_dist), 4)
+
+    print(f'Estmated rotation angle: theta_z = {theta_z}rad, ({np.rad2deg(theta_z)}deg)')
+    print(f'Estmated rotation angle: theta_y = {theta_y}rad, ({np.rad2deg(theta_y)}deg)')
+    return theta_z, theta_y
+
+
+def run_frame_processing():
+
+    while True:
+        result, video_frame = video_capture.read()  # read frames from the video
+        if result is False:
+            break  # terminate the loop if the frame is not read successfully
+        video_frame = cv2.flip(video_frame, 1)
+        faces = detect_bounding_box(
+            video_frame
+        ) 
+        # apply the function we created to the video frame
+        # except:
+        #     pass
+
+        face_coordinate_x = 0
+        face_coordinate_y = 0
+        # show_this_frame = cv2.flip(video_frame,1)
+        show_this_frame = video_frame
+        show_this_frame = add_central_lines(show_this_frame)
+
+        # font 
+        font = cv2.FONT_HERSHEY_SIMPLEX 
+        
+        # org 
+        org = (50, 50) 
+        
+        # fontScale 
+        fontScale = 1
+        
+        # Blue color in BGR 
+        color = (255, 0, 0) 
+        print(faces)
+        # Line thickness of 2 px 
+        thickness = 2
+        try:
+            show_this_frame = cv2.putText(show_this_frame, f'x = {faces[0]}, y = {faces[1]}, w = {faces[2]}, h = {faces[3]}', org, font,  
+                    fontScale, color, thickness, cv2.LINE_AA)
+            show_this_frame = add_arrawed_line_to_face_coord(show_this_frame, faces)
+            est_dist, pixels_per_centimeter = estimate_distance(faces)
+            theta_z, theta_y = estimate_angle(faces, est_dist, pixels_per_centimeter)
+        except:
+            show_this_frame = cv2.putText(show_this_frame, 'No face is detected!', org, font,  
+                    fontScale, color, thickness, cv2.LINE_AA)
+        
+        cv2.imshow(
+            "My Face Detection Project", show_this_frame
+        )  # display the processed frame in a window named "My Face Detection Project"
+
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+
+    video_capture.release()
+    cv2.destroyAllWindows()
