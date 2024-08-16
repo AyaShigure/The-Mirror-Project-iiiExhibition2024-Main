@@ -158,57 +158,52 @@ def rot_angle_estimator(face):
 
     return  theta_z_rad, theta_y_rad, theta_z_deg, theta_y_deg
 
-def run_frame_processing():
-    FPS = -1
-    while True:
-        FPS_timer_start_time = time.time()
-        result, video_frame = video_capture.read()  # read frames from the video
-        if result is False:
-            break  # terminate the loop if the frame is not read successfully
-        video_frame = cv2.flip(video_frame, 1)
-        faces = detect_bounding_box(
-            video_frame
-        ) 
+# def run_frame_processing():
+#     FPS = -1
+#     while True:
+#         FPS_timer_start_time = time.time()
+#         result, video_frame = video_capture.read()  # read frames from the video
+#         if result is False:
+#             break  # terminate the loop if the frame is not read successfully
+#         video_frame = cv2.flip(video_frame, 1)
+#         faces = detect_bounding_box(
+#             video_frame
+#         ) 
 
-        show_this_frame = video_frame
-        show_this_frame = add_central_lines(show_this_frame)
+#         show_this_frame = video_frame
+#         show_this_frame = add_central_lines(show_this_frame)
 
-        # For 
-        font = cv2.FONT_HERSHEY_SIMPLEX 
-        org = (50, 50) 
-        fontScale = 1
+#         # For displaying the
+#         font = cv2.FONT_HERSHEY_SIMPLEX 
+#         fontScale = 1
+#         color = (255, 0, 0) 
+#         print(faces)
+#         # Line thickness of 2 px 
+#         thickness = 2
+#         try:
+#             show_this_frame = cv2.putText(show_this_frame, f'x = {faces[0]}, y = {faces[1]}, w = {faces[2]}, h = {faces[3]}', (50, 50), font,  
+#                     fontScale, color, thickness, cv2.LINE_AA)
+#             show_this_frame = add_arrawed_line_to_face_coord(show_this_frame, faces)
+#             theta_z_rad, theta_y_rad, theta_z_deg, theta_y_deg = rot_angle_estimator(faces)
+#             show_this_frame = cv2.putText(show_this_frame, f'theta_y = {theta_z_deg}[deg], theta_z = {theta_y_deg}[deg]', (50,100), font,  
+#                     fontScale, color, thickness, cv2.LINE_AA)
+#             show_this_frame = cv2.putText(show_this_frame, f'FPS: {FPS}', (50,150), font,  
+#                     fontScale, color, thickness, cv2.LINE_AA)
+#         except:
+#             show_this_frame = cv2.putText(show_this_frame, 'No face is detected!', (50, 50), font,  
+#                     fontScale, color, thickness, cv2.LINE_AA)
         
-        # Blue color in BGR 
-        color = (255, 0, 0) 
-        print(faces)
-        # Line thickness of 2 px 
-        thickness = 2
-        try:
-            show_this_frame = cv2.putText(show_this_frame, f'x = {faces[0]}, y = {faces[1]}, w = {faces[2]}, h = {faces[3]}', org, font,  
-                    fontScale, color, thickness, cv2.LINE_AA)
-            show_this_frame = add_arrawed_line_to_face_coord(show_this_frame, faces)
-            theta_z_rad, theta_y_rad, theta_z_deg, theta_y_deg = rot_angle_estimator(faces)
-            show_this_frame = cv2.putText(show_this_frame, f'theta_y = {theta_z_deg}[deg], theta_z = {theta_y_deg}[deg]', (50,100), font,  
-                    fontScale, color, thickness, cv2.LINE_AA)
-            show_this_frame = cv2.putText(show_this_frame, f'FPS: {FPS}', (50,150), font,  
-                    fontScale, color, thickness, cv2.LINE_AA)
-        except:
-            show_this_frame = cv2.putText(show_this_frame, 'No face is detected!', org, font,  
-                    fontScale, color, thickness, cv2.LINE_AA)
+#         cv2.imshow(
+#             "My Face Detection Project", show_this_frame
+#         )  # display the processed frame in a window named "My Face Detection Project"
+
+#         if cv2.waitKey(1) & 0xFF == ord("q"):
+#             break
         
-        cv2.imshow(
-            "My Face Detection Project", show_this_frame
-        )  # display the processed frame in a window named "My Face Detection Project"
+#         one_cycle_time = time.time() - FPS_timer_start_time
+#         FPS = round(1/one_cycle_time, 2)
 
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            break
-        
-        one_cycle_time = time.time() - FPS_timer_start_time
-        FPS = round(1/one_cycle_time, 2)
+#     # On exiting
+#     video_capture.release()
+#     cv2.destroyAllWindows()
 
-    # On exiting
-    video_capture.release()
-    cv2.destroyAllWindows()
-
-
-# run_frame_processing()
