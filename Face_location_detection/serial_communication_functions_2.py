@@ -42,25 +42,27 @@ class arduino_object():
                 self.arduino.write(bytes(self.HEADER_LED_ON,  'utf-8'))
                 # received_data = self.arduino.readline()
                 # print(f'r{received_data}')
-                time.sleep(.01)
+                time.sleep(.005)
 
                 self.arduino.write(bytes(self.HEADER_LED_OFF,  'utf-8'))
                 # received_data = self.arduino.readline()
                 # print(f'r{received_data}')
-                time.sleep(.01)
+                time.sleep(.005)
 
                 self.arduino.write(bytes(self.HEADER_DATA_A,  'utf-8'))
                 self.arduino.write(bytes(data1,  'utf-8'))
                 # received_data = self.arduino.readline()
                 # print(f'r{received_data}')
-                time.sleep(.01)
+                time.sleep(.005)
 
                 self.arduino.write(bytes(self.HEADER_DATA_B,  'utf-8'))
                 self.arduino.write(bytes(data2,  'utf-8'))
                 # received_data = self.arduino.readline()
                 # print(f'r{received_data}')
-                time.sleep(.01)
+                time.sleep(.005)
             sending_FPS =  round(1/ (time.time() - send_start),2)
+            self.clear_read_buffer()
+            self.read_n_print()
             print(f'serial communication FPS = {sending_FPS} Hz')
 
         except KeyboardInterrupt:
