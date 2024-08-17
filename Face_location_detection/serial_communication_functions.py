@@ -12,9 +12,11 @@ class arduino_control():
     def check_connection(self):
         pass
 
-    def send_control_to_arduino(self, theta_y, theta_z):
-        self.arduino.write(bytes('202.23', 'utf-8')) #  THETA_Y_DATA = 0
-        time.sleep(1)
+    def send_control_to_arduino(self, send_data):
+        _ = self.arduino.readline()
+        send_data = str(send_data) + 'a'
+        self.arduino.write(bytes(send_data, 'utf-8')) #  THETA_Y_DATA = 0
+        time.sleep(0.05)
         arduino_status = self.arduino.readline()
         # string = "b''"
         # if arduino_status == bytes(string, 'utf-8'):
@@ -47,7 +49,8 @@ arduino.check_connection()
 theta_y = 2.0
 theta_z = 3.0
 for i in range(20):
-    arduino.send_control_to_arduino(theta_y, theta_z)
+    time.sleep(1)
+    arduino.send_control_to_arduino(10.1)
 arduino.close_port()
 # while()
 
