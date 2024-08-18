@@ -21,20 +21,35 @@
 
 # Note 2024-7-22
 # 1. Add logic: If face box is larger than xxx, active tracking and hardware serial communication and control.
+
 # Note 2024-8-16
 # 1. Updated face distance and angle estimations
 # 2. Currently this is a single process, upgrade this to multiprocess for better performance.
+
+# Note 2024-8-18
+# 1. Updated the resolution settings, 680x420 reachs 30fps for detection.
 
 import cv2
 import numpy as np
 import time
 
+
+CAMERA_RESILUTION = [100,100] # example: [1080, 720] # or [-1] for default maximun resolution.
+'''
+    The CAMERA_RESILUTION can only be some few pre set value, but when inputing random width and height, the system will set the resolution to the closest one.
+
+'''
 # Initializations
 face_classifier = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 )
-# Get the input footage size
 video_capture = cv2.VideoCapture(0)
+if CAMERA_RESILUTION[0] != -1:
+    video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_RESILUTION[0])
+    video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_RESILUTION[1])
+
+
+# Get the input footage size
 _, video_frame = video_capture.read()
 # Input video size
 video_size_x = video_frame.shape[1]

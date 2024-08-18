@@ -1,11 +1,16 @@
 from detection_stream_functions import *
 from serial_communication_functions import *
 
-
 if __name__ == "__main__":
-
+    # Initialize arduino
+    port = '/dev/cu.usbserial-00000000'
+    arduinoObj = arduino_object(port)
+    arduinoObj.clear_read_buffer()
     FPS = -1
+    theta_z_deg = 0
+    theta_y_deg = 0
     while True:
+        #################### Camera measurements ####################
         FPS_timer_start_time = time.time()
         result, video_frame = video_capture.read()  # read frames from the video
         if result is False:
@@ -45,11 +50,17 @@ if __name__ == "__main__":
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
         
+        #################### Update camera control ####################
+        theta_z_command = deg_to_arduino_servo_control(theta_z_deg)
+        theta_y_command = deg_to_arduino_servo_control(theta_y_deg)
+        # for i in range(1):
+            # arduinoObj.fast_send_2_data_to_serial_dev(theta_z_command, theta_y_command)
+        # arduinoObj.read_n_print()
+        # time.sleep(0.5)
+        print()
+        ######## FPS counter
         one_cycle_time = time.time() - FPS_timer_start_time
         FPS = round(1/one_cycle_time, 2)
-
-        ### Update camera control
-        
 
     # On exiting
     video_capture.release()

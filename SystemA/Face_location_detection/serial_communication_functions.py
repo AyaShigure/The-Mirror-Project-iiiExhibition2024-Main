@@ -3,8 +3,6 @@ import os
 import time
 import numpy as np
 
-
-
 class arduino_object():
     def __init__(self, serial_port):
         try:
@@ -29,47 +27,71 @@ class arduino_object():
         print(f'Writeable? -> {writablt}')
         print(f'Readable? -> {readable}')
 
-    def send_2_data_to_serial_dev(self, data1, data2):
+    def fast_send_2_data_to_serial_dev(self, data1, data2):
         data1 = str(data1)
         data2 = str(data2)
         try:
             send_start = time.time()
-
-            # _ = arduino.readline()
             if self.arduino.isOpen():
-                _ = self.arduino.read()
-                print('Spining')
-                self.arduino.write(bytes(self.HEADER_LED_ON,  'utf-8'))
-                # received_data = self.arduino.readline()
-                # print(f'r{received_data}')
-                time.sleep(.005)
-
-                self.arduino.write(bytes(self.HEADER_LED_OFF,  'utf-8'))
-                # received_data = self.arduino.readline()
-                # print(f'r{received_data}')
-                time.sleep(.005)
-
                 self.arduino.write(bytes(self.HEADER_DATA_A,  'utf-8'))
                 self.arduino.write(bytes(data1,  'utf-8'))
-                # received_data = self.arduino.readline()
-                # print(f'r{received_data}')
                 time.sleep(.005)
-
                 self.arduino.write(bytes(self.HEADER_DATA_B,  'utf-8'))
                 self.arduino.write(bytes(data2,  'utf-8'))
-                # received_data = self.arduino.readline()
-                # print(f'r{received_data}')
                 time.sleep(.005)
+
             sending_FPS =  round(1/ (time.time() - send_start),2)
-            self.clear_read_buffer()
-            self.read_n_print()
+            # self.clear_read_buffer()
+            # self.read_n_print()
             print(f'serial communication FPS = {sending_FPS} Hz')
 
         except KeyboardInterrupt:
+            self.arduino.close()
             print('\n\nKeyboard interrputed, exiting.\n')
             os._exit(0)
 
+    # def send_2_data_to_serial_dev(self, data1, data2):
+    #     data1 = str(data1)
+    #     data2 = str(data2)
+    #     try:
+    #         send_start = time.time()
+
+    #         # _ = arduino.readline()
+    #         if self.arduino.isOpen():
+    #             _ = self.arduino.read()
+    #             print('Spining')
+    #             self.arduino.write(bytes(self.HEADER_LED_ON,  'utf-8'))
+    #             # received_data = self.arduino.readline()
+    #             # print(f'r{received_data}')
+    #             time.sleep(.005)
+
+    #             self.arduino.write(bytes(self.HEADER_LED_OFF,  'utf-8'))
+    #             # received_data = self.arduino.readline()
+    #             # print(f'r{received_data}')
+    #             time.sleep(.005)
+
+    #             self.arduino.write(bytes(self.HEADER_DATA_A,  'utf-8'))
+    #             self.arduino.write(bytes(data1,  'utf-8'))
+    #             # received_data = self.arduino.readline()
+    #             # print(f'r{received_data}')
+    #             time.sleep(.005)
+
+    #             self.arduino.write(bytes(self.HEADER_DATA_B,  'utf-8'))
+    #             self.arduino.write(bytes(data2,  'utf-8'))
+    #             # received_data = self.arduino.readline()
+    #             # print(f'r{received_data}')
+    #             time.sleep(.005)
+    #         sending_FPS =  round(1/ (time.time() - send_start),2)
+    #         self.clear_read_buffer()
+    #         self.read_n_print()
+    #         print(f'serial communication FPS = {sending_FPS} Hz')
+
+        # except KeyboardInterrupt:
+        #     print('\n\nKeyboard interrputed, exiting.\n')
+        #     os._exit(0)
+
     def read_n_print(self):
+        # _ = self.arduino.read_all()
         self.arduino.write(bytes(self.HEADER_READ_DATA,  'utf-8'))
         received_data = self.arduino.readline()
         print(f'r{received_data}')
@@ -81,12 +103,11 @@ class arduino_object():
 
     def close_serial_port(self):
         self.arduino.close()
-    
 
-def rad_to_arduino_servo_control(radian):
-    # Assume that 180 / 2 = 90 as the center, this will nee
-    servo_command =  
-
+def deg_to_arduino_servo_control(degree):
+    # Assume that 180 / 2 = 90 as the center, this is needed to be calibrated
+    center = 90
+    servo_command = center + degree 
     return servo_command
 
 def test_run():

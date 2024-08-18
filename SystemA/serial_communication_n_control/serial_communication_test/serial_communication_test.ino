@@ -50,12 +50,12 @@ void receive_send_2_data_2(){
           case 'C': // save data 1
                 inputString_1 = Serial.readStringUntil("\n");
                 data_1 = inputString_1.toDouble();
-                Serial.println("Data 1 is received");
+//                Serial.println("Data 1 is received");
                 break;
           case 'D': // save data 2
                 inputString_2 = Serial.readStringUntil("\n");
                 data_2 = inputString_2.toDouble();
-                Serial.println("Data 2 is received");
+//                Serial.println("Data 2 is received");
                 break;
           case 'R': // Read data
                 outputString_1 = (String)data_1;
