@@ -3,9 +3,9 @@ from serial_communication_functions import *
 
 if __name__ == "__main__":
     # Initialize arduino
-    port = '/dev/cu.usbserial-00000000'
-    arduinoObj = arduino_object(port)
-    arduinoObj.clear_read_buffer()
+    # port = '/dev/cu.usbserial-00000000'
+    # arduinoObj = arduino_object(port)
+    # arduinoObj.clear_read_buffer()
     FPS = -1
     theta_z_deg = 0
     theta_y_deg = 0
@@ -51,8 +51,8 @@ if __name__ == "__main__":
             break
         
         #################### Update camera control ####################
-        theta_z_command = deg_to_arduino_servo_control(theta_z_deg)
-        theta_y_command = deg_to_arduino_servo_control(theta_y_deg)
+        # theta_z_command = deg_to_arduino_servo_control(theta_z_deg)
+        # theta_y_command = deg_to_arduino_servo_control(theta_y_deg)
         # for i in range(1):
             # arduinoObj.fast_send_2_data_to_serial_dev(theta_z_command, theta_y_command)
         # arduinoObj.read_n_print()

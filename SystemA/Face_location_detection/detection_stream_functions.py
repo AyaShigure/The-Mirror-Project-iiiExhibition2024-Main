@@ -34,7 +34,9 @@ import numpy as np
 import time
 
 
-CAMERA_RESILUTION = [100,100] # example: [1080, 720] # or [-1] for default maximun resolution.
+# CAMERA_RESILUTION = [100,100] # example: [1080, 720] # or [-1] for default maximun resolution.
+CAMERA_RESILUTION = [-1] # example: [1080, 720] # or [-1] for default maximun resolution.
+
 '''
     The CAMERA_RESILUTION can only be some few pre set value, but when inputing random width and height, the system will set the resolution to the closest one.
 
